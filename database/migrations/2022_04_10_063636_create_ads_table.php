@@ -23,6 +23,7 @@ class CreateAdsTable extends Migration
             $table->string('categorie');
             $table->string('type');
             $table->string('url');
+            $table->string('image')->nullable();
         });
     }
 

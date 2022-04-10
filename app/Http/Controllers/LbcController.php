@@ -13,7 +13,7 @@ class LbcController extends Controller
 
       $response = Http::withHeaders([
         'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
-        'X-RapidAPI-Key' => '296280c4bcmsh387388f442e2ef1p1769b8jsneec3c54215b8'
+        'X-RapidAPI-Key' => 'secret'
     ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
       'departement' => $request->departement,
       'categorie' => $request->categorie,
@@ -23,6 +23,7 @@ class LbcController extends Controller
     ]);
     $results= $response->json("ads");
     foreach ($results as $result) {
+
       $ad = new Ad;
       $ad->created_at = $result["original_ad"]["first_publication_date"];
       $ad->departement = $result["original_ad"]["location"]["zipcode"];
@@ -33,6 +34,9 @@ class LbcController extends Controller
       $ad->type = $request->type;
       $ad->id = $result["original_ad"]["list_id"];
       $ad->url = $result["original_ad"]["url"];
+      if (isset($result["original_ad"]["images"]["thumb_url"])){
+        $ad->image = $result["original_ad"]["images"]["thumb_url"];
+      }
       $ad->save();
     }
 
@@ -40,7 +44,7 @@ class LbcController extends Controller
       sleep(1.2);
       $response1 = Http::withHeaders([
         'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
-        'X-RapidAPI-Key' => '296280c4bcmsh387388f442e2ef1p1769b8jsneec3c54215b8'
+        'X-RapidAPI-Key' => 'secret'
     ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
       'departement' => $request->departement,
       'categorie' => $request->categorie,
@@ -61,25 +65,30 @@ class LbcController extends Controller
         $ad->type = $request->type;
         $ad->id = $result["original_ad"]["list_id"];
         $ad->url = $result["original_ad"]["url"];
+        if (isset($result["original_ad"]["images"]["thumb_url"])) {
+          $ad->image = $result["original_ad"]["images"]["thumb_url"];
+        }
         $ad->save();
-
       }
-  }
-
-    if ($response1->json("next_index")){
+    }else{
+      $results = Ad::where('created_at', '>', $request->date)->get();
+      
+      return view('results', ['response' => $results]);
+    }
+    if ($response1->json("next_index")) {
       sleep(1.2);
       $response2 = Http::withHeaders([
         'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
-        'X-RapidAPI-Key' => '296280c4bcmsh387388f442e2ef1p1769b8jsneec3c54215b8'
-    ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
-      'departement' => $request->departement,
-      'categorie' => $request->categorie,
-      'type' => $request->type,
-      'since' => $request->date,
-      'with_phone_only' => $request->phone,
-      'from_index' => $response1->json("next_index"),
-    ]);
-      $results= $response2->json("ads");
+        'X-RapidAPI-Key' => 'secret'
+      ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
+        'departement' => $request->departement,
+        'categorie' => $request->categorie,
+        'type' => $request->type,
+        'since' => $request->date,
+        'with_phone_only' => $request->phone,
+        'from_index' => $response1->json("next_index"),
+      ]);
+      $results = $response2->json("ads");
       foreach ($results as $result) {
         $ad = new Ad;
         $ad->created_at = $result["original_ad"]["first_publication_date"];
@@ -91,100 +100,142 @@ class LbcController extends Controller
         $ad->type = $request->type;
         $ad->id = $result["original_ad"]["list_id"];
         $ad->url = $result["original_ad"]["url"];
+        if (isset($result["original_ad"]["images"]["thumb_url"])) {
+          $ad->image = $result["original_ad"]["images"]["thumb_url"];
+        }
         $ad->save();
+      }
+    } else {
+      $results = Ad::where('created_at', '>', $request->date)->get();
+      
+      return view('results', ['response' => $results]);
     }
-  }
 
-    if ($response2->json("next_index")){
-      sleep(1.2);
-      $response3 = Http::withHeaders([
-        'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
-        'X-RapidAPI-Key' => '296280c4bcmsh387388f442e2ef1p1769b8jsneec3c54215b8'
-    ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
-      'departement' => $request->departement,
-      'categorie' => $request->categorie,
-      'type' => $request->type,
-      'since' => $request->date,
-      'with_phone_only' => $request->phone,
-      'from_index' => $response2->json("next_index"),
-    ]);
-    $results= $response3->json("ads");
-    foreach ($results as $result) {
-      $ad = new Ad;
-      $ad->created_at = $result["original_ad"]["first_publication_date"];
-      $ad->departement = $result["original_ad"]["location"]["zipcode"];
-      $ad->title = $result["original_ad"]["subject"];
-      $ad->town = $result["original_ad"]["location"]["city"];
-      $ad->phone = $result["phone"];
-      $ad->categorie = $request->categorie;
-      $ad->type = $request->type;
-      $ad->id = $result["original_ad"]["list_id"];
-      $ad->url = $result["original_ad"]["url"];
-      $ad->save();
+      if ($response2->json("next_index")) {
+        sleep(1.2);
+        $response3 = Http::withHeaders([
+          'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
+          'X-RapidAPI-Key' => 'secret'
+        ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
+          'departement' => $request->departement,
+          'categorie' => $request->categorie,
+          'type' => $request->type,
+          'since' => $request->date,
+          'with_phone_only' => $request->phone,
+          'from_index' => $response2->json("next_index"),
+        ]);
+        $results = $response3->json("ads");
+        foreach ($results as $result) {
+          $ad = new Ad;
+          $ad->created_at = $result["original_ad"]["first_publication_date"];
+          $ad->departement = $result["original_ad"]["location"]["zipcode"];
+          $ad->title = $result["original_ad"]["subject"];
+          $ad->town = $result["original_ad"]["location"]["city"];
+          $ad->phone = $result["phone"];
+          $ad->categorie = $request->categorie;
+          $ad->type = $request->type;
+          $ad->id = $result["original_ad"]["list_id"];
+          $ad->url = $result["original_ad"]["url"];
+        if (isset($result["original_ad"]["images"]["thumb_url"])) {
+          $ad->image = $result["original_ad"]["images"]["thumb_url"];
+        }
+          $ad->save();
+        }
+      } else {
+      $results = Ad::where('created_at', '>', $request->date)->get();
+      
+      return view('results', ['response' => $results]);
     }
-  }
 
-    if ($response3->json("next_index")){
-      sleep(1.2);
-      $response4 = Http::withHeaders([
-        'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
-        'X-RapidAPI-Key' => '296280c4bcmsh387388f442e2ef1p1769b8jsneec3c54215b8'
-    ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
-      'departement' => $request->departement,
-      'categorie' => $request->categorie,
-      'type' => $request->type,
-      'since' => $request->date,
-      'with_phone_only' => $request->phone,
-      'from_index' => $response3->json("next_index"),
-    ]);
-    $results= $response4->json("ads");
-    foreach ($results as $result) {
-      $ad = new Ad;
-      $ad->created_at = $result["original_ad"]["first_publication_date"];
-      $ad->departement = $result["original_ad"]["location"]["zipcode"];
-      $ad->title = $result["original_ad"]["subject"];
-      $ad->town = $result["original_ad"]["location"]["city"];
-      $ad->phone = $result["phone"];
-      $ad->categorie = $request->categorie;
-      $ad->type = $request->type;
-      $ad->id = $result["original_ad"]["list_id"];
-      $ad->url = $result["original_ad"]["url"];
-      $ad->save();
+      if ($response3->json("next_index")) {
+        sleep(1.2);
+        $response4 = Http::withHeaders([
+          'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
+          'X-RapidAPI-Key' => 'secret'
+        ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
+          'departement' => $request->departement,
+          'categorie' => $request->categorie,
+          'type' => $request->type,
+          'since' => $request->date,
+          'with_phone_only' => $request->phone,
+          'from_index' => $response3->json("next_index"),
+        ]);
+        $results = $response4->json("ads");
+        foreach ($results as $result) {
+          $ad = new Ad;
+          $ad->created_at = $result["original_ad"]["first_publication_date"];
+          $ad->departement = $result["original_ad"]["location"]["zipcode"];
+          $ad->title = $result["original_ad"]["subject"];
+          $ad->town = $result["original_ad"]["location"]["city"];
+          $ad->phone = $result["phone"];
+          $ad->categorie = $request->categorie;
+          $ad->type = $request->type;
+          $ad->id = $result["original_ad"]["list_id"];
+          $ad->url = $result["original_ad"]["url"];
+        if (isset($result["original_ad"]["images"]["thumb_url"])) {
+          $ad->image = $result["original_ad"]["images"]["thumb_url"];
+        }
+          $ad->save();
+        }
+      } else {
+      $results = Ad::where('created_at', '>', $request->date)->get();
+      
+      return view('results', ['response' => $results]);
     }
-  }
 
-    if ($response4->json("next_index")){
-      sleep(1.2);
-      $response5 = Http::withHeaders([
-        'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
-        'X-RapidAPI-Key' => '296280c4bcmsh387388f442e2ef1p1769b8jsneec3c54215b8'
-    ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
-      'departement' => $request->departement,
-      'categorie' => $request->categorie,
-      'type' => $request->type,
-      'since' => $request->date,
-      'with_phone_only' => $request->phone,
-      'from_index' => $response4->json("next_index"),
-    ]);
-    $results= $response5->json("ads");
-    foreach ($results as $result) {
-      $ad = new Ad;
-      $ad->created_at = $result["original_ad"]["first_publication_date"];
-      $ad->departement = $result["original_ad"]["location"]["zipcode"];
-      $ad->title = $result["original_ad"]["subject"];
-      $ad->town = $result["original_ad"]["location"]["city"];
-      $ad->phone = $result["phone"];
-      $ad->categorie = $request->categorie;
-      $ad->type = $request->type;
-      $ad->id = $result["original_ad"]["list_id"];
-      $ad->url = $result["original_ad"]["url"];
-      $ad->save();
+      if ($response4->json("next_index")) {
+        sleep(1.2);
+        $response5 = Http::withHeaders([
+          'X-RapidAPI-Host' => 'immobilier-leboncoin.p.rapidapi.com',
+          'X-RapidAPI-Key' => 'secret'
+        ])->get('https://immobilier-leboncoin.p.rapidapi.com/api/v1/annonces', [
+          'departement' => $request->departement,
+          'categorie' => $request->categorie,
+          'type' => $request->type,
+          'since' => $request->date,
+          'with_phone_only' => $request->phone,
+          'from_index' => $response4->json("next_index"),
+        ]);
+        $results = $response5->json("ads");
+
+        foreach ($results as $result) {
+          $ad = new Ad;
+          $ad->created_at = $result["original_ad"]["first_publication_date"];
+          $ad->departement = $result["original_ad"]["location"]["zipcode"];
+          $ad->title = $result["original_ad"]["subject"];
+          $ad->town = $result["original_ad"]["location"]["city"];
+          $ad->phone = $result["phone"];
+          $ad->categorie = $request->categorie;
+          $ad->type = $request->type;
+          $ad->id = $result["original_ad"]["list_id"];
+          $ad->url = $result["original_ad"]["url"];
+        if (isset($result["original_ad"]["images"]["thumb_url"])) {
+          $ad->image = $result["original_ad"]["images"]["thumb_url"];
+        }
+          $ad->save();
+        }
+      } else {
+      $results = Ad::where('created_at', '>', $request->date)->get();
+      
+      return view('results', ['response' => $results]);
     }
-  }
-
+    $results = Ad::where('created_at', '>', $request->date)->get();
+    
     return view('results', ['response' => $results]);
+
+
     //dd($response->json());
-    }
+  }
+
+    
+
+
+
+
+
+
+
+
 
     /**
      * Sends sms to user using Twilio's programmable sms client
