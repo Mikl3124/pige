@@ -26,7 +26,7 @@ class LbcController extends Controller
         ];
 
         if ($next) {
-          sleep(2);
+          sleep(1.5);
           $args['from_index'] = $next;
         }
 
@@ -57,12 +57,6 @@ class LbcController extends Controller
         $next = $resp->json("next_index");
       } while ($next);
     }
-
-      
-
-
-
-      
 
 
     //$results = Ad::where('created_at', '>', $request->date)->get();

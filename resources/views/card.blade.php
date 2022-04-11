@@ -21,7 +21,7 @@
                             @if(in_array("2B", $not_free_dpt))
                               class="selected2"
                             @endif
-                            data-name="Haute Corse (2A)"
+                            data-name="Haute Corse (2B)"
                             d="M469.96347,445.8937 L467.02597,447.86245 L467.43222,449.79995 L468.99472,451.7687 L467.24472,453.11245 L468.02597,454.67495 L466.83847,456.04995 L466.83847,457.79995 L468.80722,459.5812 L468.80722,462.29995 L467.61972,464.8312 L466.27597,465.42495 L464.71347,463.2687 L461.96347,463.48745 L461.36972,463.0812 L459.02597,463.0812 L456.90097,465.04995 L456.08847,468.36245 L451.02597,469.3312 L447.11972,472.6437 L446.33847,474.79995 L444.40097,474.61245 L443.40097,473.42495 L442.83847,476.7687 L441.46347,477.3312 L441.05722,480.4562 L441.65097,481.8312 L439.49472,483.3937 L438.90097,484.9562 L441.08847,485.36245 L441.46347,486.42495 L445.33847,486.42495 L446.40097,487.11245 L449.24472,486.5812 L450.46347,487.29995 L449.93222,488.17495 L451.86972,490.8312 L455.58847,490.8312 L456.49472,493.48745 L459.11972,493.48745 L458.96347,495.0812 L461.08847,497.73745 L462.15097,498.2687 L463.55722,499.1437 L463.55722,502.5187 L464.61972,503.3937 L466.74472,503.3937 L467.27597,504.2687 L467.61972,509.04995 L468.86972,509.92495 L468.33847,510.6437 L468.68222,513.4562 L472.74472,513.29995 L476.15097,511.04995 L476.02597,505.2687 L480.71347,498.6437 L480.71347,487.7062 L478.77597,483.98745 L478.18222,472.2687 L476.80722,470.11245 L474.27597,468.17495 L473.86972,460.92495 L475.05722,457.61245 L473.49472,452.3312 L472.52597,448.04995 L471.71347,446.86245 L469.96347,445.8937 L469.96347,445.8937 L469.96347,445.8937 L469.96347,445.8937 Z M469.96347,445.8937"></path>
                       <path data-num="13"
                             @if(in_array("13", $not_free_dpt))
@@ -591,16 +591,20 @@
           </g>
       </svg>
   </div>
-  <div class="col-md-4 text-left">
-    <h4>Départements sélectionnés:</h4>
+  <div id="btnSending" style="display:none" class="col-md-4 text-left">
+    <h1 class="mb-4"><span id="toPay"></span> / mois</h1>
+    <h5><u>Exclusivité sur ce(s) département(s):</u></h5>
+      <form action="{{ route('paiement') }}" method="POST">
+        @csrf
     <ul id="departements">
       (Aucun département sélectionné)
+      
     </ul>
-    <div id="btnSending" style="display:none">
-      <button class="btn btn-primary">Envoyer</button>
+        <button type="submit" class="btn btn-primary">SUIVANT <i class="fa-solid fa-right-long"></i></button>
+      </form>
+
     </div>
   </div>
-</div>
 
 @endsection
 <script>
@@ -612,9 +616,11 @@
     for (var i = 0; i < paths.length; i++) {
       var arrayName = [];
       var arrayNumber = [];
+      var arrayAmount = [];
       paths[i].addEventListener("click", function(e){
-        departementName = e.target.getAttribute('data-name')
-        departementNumber = e.target.getAttribute('data-num')
+        departementName = e.target.getAttribute('data-name');
+        departementNumber = e.target.getAttribute('data-num');
+        
         e.target.classList.toggle("selected");
         if(arrayName.indexOf(departementName) !== -1)
         {
@@ -634,20 +640,23 @@
         }else{
           arrayNumber.push(departementNumber);
         }
-
-        var listDepartements = arrayName,
-            domDepartements = document.querySelector('#departements');
-            buttonDiv = document.querySelector('#btnSending');
+        
+        var listDepartements = arrayName;
+        var domDepartements = document.querySelector('#departements');
+        var buttonDiv = document.querySelector('#btnSending');
+        var toPay = document.querySelector('#toPay');
             domDepartements.innerHTML = '';
 
             listDepartements.forEach(function(departement) {
             if (Array.isArray(arrayNumber) && arrayNumber.length > 0) {
-              domDepartements.innerHTML += "<li>" + departement + "</li>";
+              domDepartements.innerHTML += "<li>" + departement + "</li>" + "<input type='hidden' name='departements'' value='" + arrayNumber + "'>";
               buttonDiv.style.display = 'block';
+              toPay.innerHTML = " " + (arrayNumber.length * 29.90).toFixed(2) + " €";
             }
           });
           if (Array.isArray(arrayNumber) && arrayNumber.length < 1) {
             buttonDiv.style.display = 'none';
+
           }
         })
       }

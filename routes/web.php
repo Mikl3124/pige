@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', 'App\Http\Controllers\HomeController@index');
 Route::post('/api', 'App\Http\Controllers\LbcController@index')->name('api');
 Route::post('/send-sms', 'App\Http\Controllers\LbcController@send')->name('send-sms');
+Route::post('/paiement', 'App\Http\Controllers\PaiementController@index')->name('paiement');
 
 Auth::routes();
 
