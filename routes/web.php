@@ -21,3 +21,4 @@ Route::post('/send-sms', 'App\Http\Controllers\LbcController@send')->name('send-
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/card', [App\Http\Controllers\HomeController::class, 'card'])->name('card');
