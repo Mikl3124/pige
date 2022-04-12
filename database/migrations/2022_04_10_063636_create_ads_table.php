@@ -25,6 +25,28 @@ class CreateAdsTable extends Migration
             $table->string('url');
             $table->string('list_id');
             $table->string('image')->nullable();
+            // $table->string('annonce_id');
+            // $table->string('title');
+            // $table->integer('price')->nullable();
+            // $table->string('url');
+            // $table->text('description');
+            // $table->string('urgent');
+            // $table->string('category_name');
+            // $table->string('ad_type');
+            // $table->string('region');
+            // $table->string('departement')->nullable();;
+            // $table->string('city');
+            // $table->string('postal_code');
+            // $table->string('is_exclusive')->nullable();
+            // $table->string('first_publication_date');
+            // $table->string('last_publication_date');
+            // $table->string('has_phone');
+            // $table->string('phone')->nullable();
+            // $table->string('owner_type');
+            // $table->string('owner_name');
+            // $table->string('user_id');
+            // $table->string('real_estate_type')->nullable();
+
         });
     }
 

@@ -26,7 +26,7 @@ class LbcController extends Controller
         ];
 
         if ($next) {
-          sleep(1.5);
+          sleep(2);
           $args['from_index'] = $next;
         }
 
@@ -56,6 +56,7 @@ class LbcController extends Controller
         }
         $next = $resp->json("next_index");
       } while ($next);
+
     }
 
 

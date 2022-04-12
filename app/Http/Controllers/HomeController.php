@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Ad;
 use App\Models\Departement;
 use Illuminate\Http\Request;
 
@@ -33,7 +34,7 @@ class HomeController extends Controller
       $not_free_dpt = [];
 
       foreach ($booking_dpt as $departement) {
-        array_push($not_free_dpt, $departement->zip);
+        array_push($not_free_dpt, $departement->departement_code);
       }
 
       return view('card', compact('not_free_dpt'));

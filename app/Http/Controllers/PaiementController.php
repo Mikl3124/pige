@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Departement;
 use Illuminate\Http\Request;
 
 class PaiementController extends Controller
@@ -11,6 +12,13 @@ class PaiementController extends Controller
         $deptString = $request->departements;
         $deptArray = explode(',', $deptString);
 
-        dd($deptArray);
+        $departements = Departement::whereIn('departement_code', $deptArray )->get();
+        foreach ($departements as $departement) {
+          $departement->free = 0;
+          $departement->save();
+        }
+
+        return view('paiement', compact('departements'));
+
     }
 }

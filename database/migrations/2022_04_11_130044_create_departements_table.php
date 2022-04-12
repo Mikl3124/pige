@@ -16,10 +16,11 @@ class CreateDepartementsTable extends Migration
         Schema::create('departements', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('name');
-            $table->string('zip');
-            $table->unsignedInteger('user_id')->index()->references('id')->on('users')->onDelete('cascade');
-            $table->boolean('free');
+            $table->string('departement_code');
+            $table->string('departement_nom');
+            $table->string('region_code');
+            $table->string('region_nom');
+            $table->boolean('free')->default('1');
         });
     }
 
